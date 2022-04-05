@@ -1,5 +1,8 @@
 import UIKit
+import AVFoundation
+import VideoToolbox
 import BanubaSdk
+import BanubaEffectPlayer
 
 class CameraViewController: UIViewController {
     
@@ -7,6 +10,12 @@ class CameraViewController: UIViewController {
     
     private var sdkManager = BanubaSdkManager()
     private let config = EffectPlayerConfiguration(renderMode: .video)
+    private var effectPlayer : BNBOffscreenEffectPlayer?
+    
+    private let renderWidth: UInt = 1280
+    private let renderHeight: UInt = 720
+    private var afro: Bool = false
+    private var counter: UInt = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,8 +27,15 @@ class CameraViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         sdkManager.input.startCamera()
-        _ = sdkManager.loadEffect("TrollGrandma", synchronous: true)
+        _ = sdkManager.loadEffect("test_BG", synchronous: true)
         sdkManager.startEffectPlayer()
+        
+        initBNBOffscreenEffectPlayer(width: renderWidth, height: renderHeight, manualAudio: false)
+        effectPlayer?.loadEffect("Makeup")
+
+        sdkManager.output?.startForwardingFrames(handler: { (pixelBuffer) -> Void in
+            self.processFrame(pixelBuffer: pixelBuffer)
+        })
     }
     
     deinit {
@@ -66,5 +82,72 @@ class CameraViewController: UIViewController {
     
     @IBAction func closeCamera(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
+    }
+    
+    private func initBNBOffscreenEffectPlayer(width: UInt, height: UInt, manualAudio: Bool) {
+        /**
+         * This way of configuration of OEP is useful then you want to register Listeners for EP
+         */
+        let config = BNBEffectPlayerConfiguration.init(fxWidth: Int32(width), fxHeight: Int32(height), nnEnable: .automatically , faceSearch: .good, jsDebuggerEnable: false, manualAudio: manualAudio)
+        let ep = BNBEffectPlayer.create(config)
+
+        // Please note that calls like surfaceChanged should be performed via OEP instance
+        effectPlayer = BNBOffscreenEffectPlayer.init(effectPlayer: ep!, offscreenWidth: width, offscreenHight: height)
+
+        /** Use this approach of OEP initialization if you care only about image processing with effect application
+         *   effectPlayer = BNBOffscreenEffectPlayer.init(
+         *       effectWidth: width,
+         *       andHeight: height,
+         *       manualAudio: manualAudio
+         *   )
+         */
+    }
+    
+    private func processFrame(pixelBuffer: CVPixelBuffer){
+        CVPixelBufferLockBaseAddress(pixelBuffer, [])
+        
+        counter += 1
+        if (counter == 30){
+            effectPlayer?.unloadEffect();
+            effectPlayer?.loadEffect(afro ? "Makeup" : "Afro")
+            afro = !afro
+            counter = 0
+            
+            if (!afro) {
+                effectPlayer?.evalJs("Eyes.color('0.0 0.0 1.0 1.0')", resultCallback: nil)
+            }
+        }
+        
+        var format = EpImageFormat(
+            imageSize: CGSize(width: 720, height: 1280),
+            orientation: .angles270,
+            resultedImageOrientation: .angles270, // See paintPixelBuffer for details about image's orientation passed to view
+            isMirrored: true,
+            needAlphaInOutput: false,
+            overrideOutputToBGRA: false,
+            outputTexture: false
+        )
+        
+        effectPlayer?.processImage(pixelBuffer, with: &format, frameTimestamp: NSNumber(value: Date().timeIntervalSince1970), completion: {(resPixelBuffer, timestamp) in
+            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+            self.paintPixelBuffer(resPixelBuffer)
+        })
+        
+    }
+    
+    func paintPixelBuffer(_ pixelBuffer: CVPixelBuffer?) {
+        if let resultPixelBuffer = pixelBuffer {
+            var cgImage: CGImage?
+
+            VTCreateCGImageFromCVPixelBuffer(resultPixelBuffer, options: nil, imageOut: &cgImage)
+
+            guard let cgImageSafe = cgImage else { return }
+
+            let image = UIImage(cgImage: cgImageSafe, scale: 1.0, orientation: .left)
+            
+            DispatchQueue.main.async {
+
+            }
+        }
     }
 }
