@@ -114,7 +114,20 @@ class CameraViewController: UIViewController {
             counter = 0
             
             if (!afro) {
-                effectPlayer?.evalJs("Eyes.color('0.0 0.0 1.0 1.0')", resultCallback: nil)
+                effectPlayer?.evalJs("Makeup.contour('0.3 0.1 0.1 0.2')", resultCallback: nil)
+                effectPlayer?.evalJs("Teeth.whitening(1)", resultCallback: nil)
+                effectPlayer?.evalJs("Makeup.highlighter('0.75 0.74 0.74 0.4')", resultCallback: nil)
+                effectPlayer?.evalJs("Skin.color('0.73 0.39 0.08 0.3')", resultCallback: nil)
+                effectPlayer?.evalJs("Skin.softening(1)", resultCallback: nil)
+                effectPlayer?.evalJs("Softlight.strength(1)", resultCallback: nil)
+                effectPlayer?.evalJs("FaceMorph.eyes(0.6)", resultCallback: nil)
+                effectPlayer?.evalJs("FaceMorph.face(0.5)", resultCallback: nil)
+                effectPlayer?.evalJs("FaceMorph.nose(1)", resultCallback: nil)
+                effectPlayer?.evalJs("FaceMorph.lips(1)", resultCallback: nil)
+
+//                effectPlayer?.evalJs("Eyes.color('0.0 0.0 1.0 1.0')", resultCallback: nil)
+//                effectPlayer?.evalJs("Teeth.whitening(0.1)", resultCallback: nil)
+//                effectPlayer?.evalJs("Makeup.clear()", resultCallback: nil)
             }
         }
         
