@@ -4,9 +4,11 @@ import BanubaSdk
 class CameraViewController: UIViewController {
     
     @IBOutlet weak var effectView: EffectPlayerView!
+    @IBOutlet weak var getVideoButton: UIButton!
     
     private var sdkManager = BanubaSdkManager()
     private let config = EffectPlayerConfiguration(renderMode: .video)
+    var isRecording = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,4 +69,49 @@ class CameraViewController: UIViewController {
     @IBAction func closeCamera(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
+    
+    
+    @IBAction func getPhotoButtonPushed(_ sender: UIButton) {
+        guard isRecording == false else {return}
+        
+        let settings = CameraPhotoSettings(useStabilization: true, flashMode: AVCaptureDevice.FlashMode.off )
+        sdkManager.makeCameraPhoto(cameraSettings: settings, flipFrontCamera: true, srcImageHandler: nil) { (img) in
+            if (img != nil) {
+                guard var safeImg = img else {return}
+                UIImageWriteToSavedPhotosAlbum(safeImg, nil, nil, nil)
+            }
+        }
+    }
+    
+    
+    @IBAction func getVideoButtonPushed(_ sender: UIButton) {
+        self.isRecording = !self.isRecording
+                recordVideo(self.isRecording)
+                
+                self.getVideoButton.setTitle(self.isRecording ? "stopRecording" : "getVideo", for: .normal)
+    }
+    
+    private func saveVideoToGallery(fileURL: String) {
+           if UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(fileURL) {
+               UISaveVideoAtPathToSavedPhotosAlbum(fileURL, nil, nil, nil)
+           }
+       }
+       
+       func recordVideo(_ shouldRecord: Bool){
+           let hasSpace =  sdkManager.output?.hasDiskCapacityForRecording() ?? true
+           if shouldRecord && hasSpace {
+               let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("video.mp4")
+               sdkManager.input.startAudioCapturing()
+               sdkManager.output?.startVideoCapturing(fileURL:fileURL) { (success, error) in
+                   print("Done Writing: \(success)")
+                   if let _error = error {
+                       print(_error)
+                   }
+                   self.sdkManager.input.stopAudioCapturing()
+                   self.saveVideoToGallery(fileURL: fileURL.relativePath)
+               }
+           } else {
+               sdkManager.output?.stopVideoCapturing(cancel: false)
+           }
+       }
 }
