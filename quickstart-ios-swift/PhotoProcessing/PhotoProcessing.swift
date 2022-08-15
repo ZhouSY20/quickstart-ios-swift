@@ -1,6 +1,6 @@
 import UIKit
 import Foundation
-import BNBSdkApi
+import BanubaSdk
 
 class PhotoProcessingController: UIViewController {
     

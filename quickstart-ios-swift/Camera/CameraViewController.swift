@@ -1,5 +1,5 @@
 import UIKit
-import BNBSdkApi
+import BanubaSdk
 
 class CameraViewController: UIViewController {
     

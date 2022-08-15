@@ -1,5 +1,5 @@
 import UIKit
-import BNBSdkApi
+import BanubaSdk
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
