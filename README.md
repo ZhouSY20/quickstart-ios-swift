@@ -1,22 +1,14 @@
-Quick start examples for integrating [Banuba SDK on iOS](https://docs.banuba.com/face-ar-sdk-v1/ios/ios_getting_started) into Swift apps.  
-The example contains the following usecases:   
-- apply effect to video from camera and show it on the screen,  
-- apply effect to photo from the gallery,  
-- apply effect to video from the gallery,  
-- apply effect to video from camera and record video,
-- apply Makeup effect to photo and use Makeup API in realtime.    
-  
-**Important**  
-Please use [v0.x](../../tree/v0.x) branch for SDK version 0.x (e.g. v0.38).
-The 'Photo Processing' view requires the Makeup effect. You can get the effect on [banuba.com](https://docs.banuba.com/face-ar-sdk-v1/overview/demo_face_filters).
+Quick start examples for integrating [Banuba SDK on iOS](https://docs.banuba.com/face-ar-sdk/ios/ios_getting_started) into Swift apps.
 
 # Getting Started
 
-1. Get the Banuba SDK client token. Please fill in our form on [form on banuba.com](https://www.banuba.com/face-filters-sdk) website, or contact us via [info@banuba.com](mailto:info@banuba.com).
-2. Install [CocoaPods](https://guides.cocoapods.org/using/getting-started.html) if you don't have it.
-3. Install required project dependencies by running `pod install`.
-4. Copy and Paste your client token into appropriate section of `quickstart-ios-swift/quickstart-ios-swift/BanubaClientToken.swift`
-5. Open generated workspace (not a project!) in Xcode and run the example.
+1. Get the latest Banuba SDK archive for iOS and the client token. Please fill in our form on [form on banuba.com](https://www.banuba.com/face-filters-sdk) website, or contact us via [info@banuba.com](mailto:info@banuba.com).
+2. Copy `BanubaEffectPlayer.xcframework` and `BanubaSdk` project folder from the Banuba SDK archive into `Frameworks` dir:
+    `BNBEffectPlayer/bin/BanubaEffectPlayer.xcframework` => `quickstart-ios-swift/Frameworks/`
+    `BNBEffectPlayer/src/BanubaSdk/BanubaSdk/BanubaSdk` => `quickstart-ios-swift/Frameworks/`
+    `BNBEffectPlayer/src/BanubaSdk/BanubaSdk/BanubaSdk.xcodeproj` => `quickstart-ios-swift/Frameworks/`
+3. Copy and Paste your client token into appropriate section of `quickstart-ios-swift/quickstart-ios-swift/BanubaClientToken.swift`
+4. Open the project in xCode and run the example.
 
 # Contributing
 
